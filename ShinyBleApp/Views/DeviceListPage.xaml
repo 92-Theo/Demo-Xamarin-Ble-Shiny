@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ShinyBleApp.Views.DeviceListPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <StackLayout Grid.Row="0" Orientation="Horizontal">
+                <Button Command="{Binding Connect}" Text="연결" />
+                <Button Command="{Binding Disconnect}" Text="해제" />
+                <Button Command="{Binding Start}" Text="시작" />
+                <Button Command="{Binding Stop}" Text="정지" />
+            </StackLayout>
+
+            <ListView
+                Grid.Row="1"
+                ItemsSource="{Binding DeviceList, Mode=TwoWay}"
+                SelectedItem="{Binding SelectedDevice}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Horizontal">
+                                <Label
+                                    HorizontalOptions="Start"
+                                    Text="{Binding Id}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    HorizontalOptions="End"
+                                    Text="{Binding Status}"
+                                    VerticalOptions="Center" />
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <!--<ListView
+                x:Name="_listView"
+                Grid.Row="2"
+                ItemsSource="{Binding LogList}" />-->
+            <ScrollView x:Name="_scrollView" Grid.Row="2">
+                <Label x:Name="_label" />
+            </ScrollView>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
