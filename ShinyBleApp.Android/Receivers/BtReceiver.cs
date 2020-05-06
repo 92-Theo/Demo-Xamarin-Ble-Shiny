@@ -31,6 +31,8 @@ namespace ShinyBleApp.Droid.Receivers
                         switch (outState)
                         {
                             case State.Off:
+                                //
+                                // if i dont call this function, device status don't be changed on LG V30
                                 ShinyBleApp.Models.Managers.BleManager.Instance.SetBleStatus(false);
                                 break;
                             case State.On:
