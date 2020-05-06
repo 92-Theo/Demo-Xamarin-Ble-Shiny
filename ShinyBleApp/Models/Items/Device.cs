@@ -15,7 +15,7 @@ namespace ShinyBleApp.Models.Items
     {
         IDisposable _statusDisposable;
         IDisposable _readDisposable;
-        IDisposable _connectionWaitDisposable;
+        IDisposable _ConnectWaitDisposable;
 
 
         public Device(IPeripheral peripheral)
@@ -54,31 +54,31 @@ namespace ShinyBleApp.Models.Items
             Peripheral?.CancelConnection();
             _statusDisposable?.Dispose();
             _readDisposable?.Dispose();
-            _connectionWaitDisposable?.Dispose();
+            _ConnectWaitDisposable?.Dispose();
 
             _statusDisposable = default;
             _readDisposable = default;
-            _connectionWaitDisposable = default;
+            _ConnectWaitDisposable = default;
 
             IsSubscribeStatus = false;
             IsSubscribeConnetionWait= false;
         }
 
-        public void ConnectionWait(bool auto = true)
+        public void ConnectWait(bool auto = true)
         {
-            App.AddLog($"{Peripheral.Name} ConnectionWait : {Helper.GetEnumName(State)}");
+            App.AddLog($"{Peripheral.Name} ConnectWait : {Helper.GetEnumName(State)}");
             SubcribeStatus();
             MessagingCenter.Send(this, "StateChanged", State);
-            SubcribeConnectionWait(auto);
+            SubcribeConnectWait(auto);
         }
 
         public void CancelConnection()
         {
             App.AddLog($"{Peripheral.Name} CancelConnect : {Helper.GetEnumName(State)}");
             _readDisposable?.Dispose();
-            _connectionWaitDisposable?.Dispose();
+            _ConnectWaitDisposable?.Dispose();
 
-            _connectionWaitDisposable = default;
+            _ConnectWaitDisposable = default;
             _readDisposable = default;
 
             Peripheral?.CancelConnection();
@@ -155,29 +155,29 @@ namespace ShinyBleApp.Models.Items
 
         #region Subscribe
         #region ConenctionWait
-        void SubcribeConnectionWait(bool auto)
+        void SubcribeConnectWait(bool auto)
         {
             if (!IsSubscribeConnetionWait)
             {
                 IsSubscribeConnetionWait = true;
                 try
                 {
-                    _connectionWaitDisposable = Peripheral.ConnectWait(auto ? Constants.Ble.AutoConnectionConfig : Constants.Ble.ConnectionConfig)
+                    _ConnectWaitDisposable = Peripheral.ConnectWait(auto ? Constants.Ble.AutoConnectionConfig : Constants.Ble.ConnectionConfig)
                         .Subscribe(
-                            OnConnectionWait,
-                            ex => OnError(ex, ObserverType.ConnectionWait),
-                            () => OnComplete(ObserverType.ConnectionWait));
+                            OnConnectWait,
+                            ex => OnError(ex, ObserverType.ConnectWait),
+                            () => OnComplete(ObserverType.ConnectWait));
                 }
                 catch (Exception ex) 
                 {
                     App.AddLog($"{MethodBase.GetCurrentMethod().Name} {Name} {ex.Message}");
                     IsSubscribeConnetionWait = false;
-                    _connectionWaitDisposable?.Dispose();
-                    _connectionWaitDisposable = default;
+                    _ConnectWaitDisposable?.Dispose();
+                    _ConnectWaitDisposable = default;
                 }
             }
         }
-        void OnConnectionWait(IPeripheral peripheral)
+        void OnConnectWait(IPeripheral peripheral)
         {
             // Not to do
         }
@@ -233,11 +233,11 @@ namespace ShinyBleApp.Models.Items
             {
                 IsSubscribeStatus = false;
             }
-            else if (type == ObserverType.ConnectionWait)
+            else if (type == ObserverType.ConnectWait)
             {
                 IsSubscribeConnetionWait = false;
-                _connectionWaitDisposable?.Dispose();
-                _connectionWaitDisposable = default;
+                _ConnectWaitDisposable?.Dispose();
+                _ConnectWaitDisposable = default;
             }
         }
 
@@ -249,11 +249,11 @@ namespace ShinyBleApp.Models.Items
             {
                 IsSubscribeStatus = false;
             }
-            else if (type == ObserverType.ConnectionWait)
+            else if (type == ObserverType.ConnectWait)
             {
                 IsSubscribeConnetionWait = false;
-                _connectionWaitDisposable?.Dispose();
-                _connectionWaitDisposable = default;
+                _ConnectWaitDisposable?.Dispose();
+                _ConnectWaitDisposable = default;
             }
         }
         #endregion
@@ -268,7 +268,7 @@ namespace ShinyBleApp.Models.Items
 
         enum ObserverType
         {
-            State, ConnectionWait
+            State, ConnectWait
         }
     }
 }

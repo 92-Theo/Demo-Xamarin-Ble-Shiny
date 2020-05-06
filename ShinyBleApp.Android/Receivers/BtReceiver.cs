@@ -27,18 +27,18 @@ namespace ShinyBleApp.Droid.Receivers
                     State outState;
                     if (Enum.TryParse(state.ToString(), out outState))
                     {
-                        App.AddLog($"BtStateReceiver {Helper.GetEnumName(outState)}");
-                        //switch (outState)
-                        //{
-                        //    case State.Off:
-                        //        ShinyBleManager.Instance.SetStateChagned(false);
-                        //        break;
-                        //    case State.On:
-                        //        ShinyBleManager.Instance.SetStateChagned(true);
-                        //        break;
-                        //        //case BluetoothAdapter.STATE_TURNING_OFF: break;
-                        //        //case BluetoothAdapter.STATE_TURNING_ON: break;
-                        //}
+                        App.AddLog($"{MethodBase.GetCurrentMethod().Name} {Helper.GetEnumName(outState)}");
+                        switch (outState)
+                        {
+                            case State.Off:
+                                ShinyBleApp.Models.Managers.BleManager.Instance.SetBleStatus(false);
+                                break;
+                            case State.On:
+                                ShinyBleApp.Models.Managers.BleManager.Instance.SetBleStatus(true);
+                                break;
+                                //case BluetoothAdapter.STATE_TURNING_OFF: break;
+                                //case BluetoothAdapter.STATE_TURNING_ON: break;
+                        }
                     }
 
                     break;

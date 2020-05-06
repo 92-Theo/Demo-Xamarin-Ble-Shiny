@@ -36,8 +36,11 @@ namespace ShinyBleApp.Models.Managers
                 foreach (var id in StatusManager.Instance.WhiteList)
                 {
                     var peripheral = CentralManager.GetKnownPeripheral(Guid.Parse(id)).Wait();
-                    AddDevice(peripheral);
-                    Task.Factory.StartNew(() => { DeviceDic[id].ConnectionWait(); });
+                    if (peripheral != default)
+                    {
+                        AddDevice(peripheral);
+                        Task.Factory.StartNew(() => { DeviceDic[id].ConnectWait(); });
+                    }
                 }
             });
         }
@@ -50,7 +53,6 @@ namespace ShinyBleApp.Models.Managers
         ObservableCollection<string> WhiteList => StatusManager.Instance.WhiteList;
 
         public AccessState Status => CentralManager.Status;
-
 
         public void AddDevice(IPeripheral peripheral)
         {
@@ -71,7 +73,7 @@ namespace ShinyBleApp.Models.Managers
             }
         }
 
-        #region Connection
+        #region Connect
 
         public void Connect(string id)
         {
@@ -88,7 +90,7 @@ namespace ShinyBleApp.Models.Managers
                     AddDevice(peripheral);
                 }
 
-                Task.Factory.StartNew(() => DeviceDic[id]?.ConnectionWait());
+                Task.Factory.StartNew(() => DeviceDic[id]?.ConnectWait());
             });
         }
         
@@ -102,8 +104,34 @@ namespace ShinyBleApp.Models.Managers
             DeviceDic[id]?.CancelConnection();
         }
 
+        public void SetBleStatus(bool bleOn)
+        {
+            if (bleOn)
+            {
+                foreach (var id in StatusManager.Instance.WhiteList)
+                {
+                    var peripheral = CentralManager.GetKnownPeripheral(Guid.Parse(id)).Wait();
+                    if (peripheral != default)
+                    {
+                        AddDevice(peripheral);
+                        Task.Factory.StartNew(() => { DeviceDic[id]?.ConnectWait(); });
+                    }
+                }
+            }
+            else
+            {
+                foreach (var id in StatusManager.Instance.WhiteList)
+                {
+                    var peripheral = CentralManager.GetKnownPeripheral(Guid.Parse(id)).Wait();
+                    if (peripheral != default)
+                    {
+                        AddDevice(peripheral);
+                        Task.Factory.StartNew(() => { DeviceDic[id]?.CancelConnection(); });
+                    }
+                }
+            }
+        }
         #endregion
-
 
         #region Scan
         public async Task StartScan(TimeSpan timeout)
@@ -146,7 +174,6 @@ namespace ShinyBleApp.Models.Managers
 
         #endregion
 
-
         void SubscribeMssagingCenter()
         {
 
@@ -183,20 +210,21 @@ namespace ShinyBleApp.Models.Managers
         }
         void OnConnected(Items.Device device)
         {
-            if (!WhiteList.Contains(device.Id.ToString()))
+            if (!WhiteList.Contains(device.Id.ToString())) 
                 device.CancelConnection();
         }
         void OnDisconnected(Items.Device device)
         {
-            if (WhiteList.Contains(device.Id.ToString()))
-                Task.Factory.StartNew(() => device.ConnectionWait()); ;
+            if (StatusManager.Instance.IsBleOn)
+            {
+                if (WhiteList.Contains(device.Id.ToString()))
+                    Task.Factory.StartNew(() => device.ConnectWait()); ;
+            }
         }
-
         void OnCentralStatusChanged(AccessState status)
         {
             App.AddLog($"{MethodBase.GetCurrentMethod().Name} {Helper.GetEnumName(status)}");
         }
-
         void OnCentralStatusError(Exception ex)
         {
             App.AddLog($"{MethodBase.GetCurrentMethod().Name} {ex.Message}");
