@@ -73,6 +73,7 @@
     <Compile Include="MainActivity.cs" />
     <Compile Include="MainApplication.cs" />
     <Compile Include="Receivers\AlarmReceiver.cs" />
+    <Compile Include="Receivers\BtReceiver.cs" />
     <Compile Include="Receivers\ScreenOnReceiver.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

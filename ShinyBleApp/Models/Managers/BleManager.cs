@@ -24,6 +24,11 @@ namespace ShinyBleApp.Models.Managers
         BleManager()
         {
             SubscribeMssagingCenter();
+            CentralManager.WhenStatusChanged().Subscribe(
+                OnCentralStatusChanged,
+                OnCentralStatusError,
+                OnCentralStatusComplete);
+
 
 
             Task.Factory.StartNew(() =>
@@ -185,6 +190,20 @@ namespace ShinyBleApp.Models.Managers
         {
             if (WhiteList.Contains(device.Id.ToString()))
                 Task.Factory.StartNew(() => device.ConnectionWait()); ;
+        }
+
+        void OnCentralStatusChanged(AccessState status)
+        {
+            App.AddLog($"{MethodBase.GetCurrentMethod().Name} {Helper.GetEnumName(status)}");
+        }
+
+        void OnCentralStatusError(Exception ex)
+        {
+            App.AddLog($"{MethodBase.GetCurrentMethod().Name} {ex.Message}");
+        }
+        void OnCentralStatusComplete()
+        {
+            App.AddLog($"{MethodBase.GetCurrentMethod().Name}");
         }
     }
 }

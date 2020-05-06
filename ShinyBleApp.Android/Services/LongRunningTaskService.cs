@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using Android.App;
+using Android.Bluetooth;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
@@ -20,6 +21,7 @@ namespace ShinyBleApp.Droid.Services
     {
         bool IsStarted { get; set; }
         ScreenOnReceiver ScreenOnReceiver { get; set; }
+        BtReceiver BtReceiver { get; set; }
         string CurGuid { get; set; } = "";
 
         
@@ -56,6 +58,11 @@ namespace ShinyBleApp.Droid.Services
                 filter.AddAction(Intent.ActionScreenOn);
                 filter.AddAction(Intent.ActionScreenOff);
                 RegisterReceiver(ScreenOnReceiver, filter);
+
+                BtReceiver = new BtReceiver();
+                var filter2 = new IntentFilter();
+                filter2.AddAction(BluetoothAdapter.ActionStateChanged);
+                RegisterReceiver(BtReceiver, filter2);
                 Xamarin.Forms.MessagingCenter.Subscribe<ScreenOnReceiver>(this, "ScreenOff", s =>
                 {
                     StartAlarm();
@@ -90,6 +97,7 @@ namespace ShinyBleApp.Droid.Services
                 var notificationManager = (NotificationManager)GetSystemService(NotificationService);
                 notificationManager.Cancel(Constants.Notification.Id);
                 UnregisterReceiver(ScreenOnReceiver);
+                UnregisterReceiver(BtReceiver);
                 Xamarin.Forms.MessagingCenter.Unsubscribe<ScreenOnReceiver>(this, "ScreenOff");
                 Xamarin.Forms.MessagingCenter.Unsubscribe<ScreenOnReceiver>(this, "ScreenOn");
                 Xamarin.Forms.MessagingCenter.Unsubscribe<BleManager, ShinyBleApp.Models.Items.Device>(this, "Connected");
